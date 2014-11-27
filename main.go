@@ -23,6 +23,8 @@ func main() {
 		msg = "Unknown command \"" + os.Args[1] + "\""
 	}
 
-	fmt.Println(msg)
+	if msg != "" {
+		fmt.Println(msg)
+	}
 	os.Exit(exit)
 }
