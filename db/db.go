@@ -21,7 +21,7 @@ func init() {
 	conn, err := createconnection()
 	checkError(err)
 
-	_, err = conn.Exec("CREATE TABLE IF NOT EXISTS task(id INTEGER PRIMARY KEY, name TEXT, value TEXT, status INT)")
+	_, err = conn.Exec("CREATE TABLE IF NOT EXISTS task(id INTEGER PRIMARY KEY, value TEXT, status INT)")
 	checkError(err)
 }
 
@@ -30,12 +30,12 @@ func ByKey(key int) *Task {
 	checkError(err)
 
 	task := new(Task)
-	sql := "select id, name, value, status from task WHERE id = ?"
+	sql := "select id, value, status from task WHERE id = ?"
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
 
-	err = stmt.QueryRow(key).Scan(&task.Id, &task.Name, &task.Value, &task.Status)
+	err = stmt.QueryRow(key).Scan(&task.Id, &task.Value, &task.Status)
 	// TODO: check for empty row
 	return task
 }
