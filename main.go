@@ -18,6 +18,8 @@ func main() {
 	switch os.Args[1] {
 	case "read", "r":
 		exit, msg = commands.Read()
+	case "add", "a":
+		exit, msg = commands.Add()
 	default:
 		exit = -1
 		msg = "Unknown command \"" + os.Args[1] + "\""
