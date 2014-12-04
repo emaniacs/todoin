@@ -1,7 +1,7 @@
 package db
 
 type Task struct {
-	Id     int
+	Id     int64
 	Value  string
 	Status int
 }
