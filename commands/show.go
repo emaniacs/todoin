@@ -10,26 +10,59 @@ import (
 var Key int
 
 func init() {
-	if len(os.Args) > 2 {
-		Key, _ = strconv.Atoi(os.Args[2])
-	} else {
+	Key = 1
+	if len(os.Args) < 3 {
 		Key = 0
 	}
 }
 
-func Read() (int, string) {
+func Show() (int, []string) {
+	msg := []string{}
 	if Key < 1 {
-		return -1, fmt.Sprintf("Invalid key %d", Key)
+		msg = append(msg, "Not enough argument.")
+		return -1, msg
 	}
-	task := db.ByKey(Key)
+	var tasks []*db.Task
 
-	// status := (map[bool]string{true: " [done]", false: ""})[task.Status == 1]
-	status := ""
-	if task.Status == 1 {
-		status = " [done]"
+	for {
+		if isDone(os.Args[2]) {
+			tasks = db.ByStatus(Key)
+		} else if isNumeric(os.Args[2]) {
+			tasks = db.ByKey(Key)
+		}
+		break
 	}
 
-	msg := fmt.Sprintf("%s%s", task.Value, status)
+	for key := range tasks {
+		task := tasks[key]
+		status := ""
+		if task.Status == 1 {
+			status = " [done]"
+		}
+
+		// TODO: format output
+		msg = append(msg, fmt.Sprintf("%s%s", task.Value, status))
+	}
 
 	return 0, msg
+}
+
+func isNumeric(val string) bool {
+	key, err := strconv.Atoi(val)
+	Key = key
+	if err == nil {
+		return true
+	}
+	return false
+}
+
+func isDone(val string) bool {
+	if val == "done" || val == "d" {
+		Key = 1
+		return true
+	} else if val == "undone" || val == "u" {
+		Key = 0
+		return true
+	}
+	return false
 }
