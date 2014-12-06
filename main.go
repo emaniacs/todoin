@@ -7,26 +7,27 @@ import (
 )
 
 func main() {
-	var exit int
-	var msg string
 	if len(os.Args) < 2 {
-		exit, msg = commands.Help()
-		fmt.Println(msg)
+		exit, help := commands.Help()
+		fmt.Println(help)
 		os.Exit(exit)
 	}
 
 	switch os.Args[1] {
-	case "read", "r":
-		exit, msg = commands.Read()
+	case "show", "s":
+		var exit int
+		msg := []string{}
+		exit, msg = commands.Show()
+		for key := range msg {
+			fmt.Println(msg[key])
+		}
+		os.Exit(exit)
 	case "add", "a":
-		exit, msg = commands.Add()
-	default:
-		exit = -1
-		msg = "Unknown command \"" + os.Args[1] + "\""
-	}
-
-	if msg != "" {
+		exit, msg := commands.Add()
 		fmt.Println(msg)
+		os.Exit(exit)
+	default:
+		fmt.Println("Unknown command \"" + os.Args[1] + "\"")
+		os.Exit(-1)
 	}
-	os.Exit(exit)
 }
