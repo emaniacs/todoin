@@ -26,7 +26,7 @@ func init() {
 	checkError(err)
 }
 
-func ByKey(key int) *Task {
+func ByKey(key int) []*Task {
 	conn, err := createconnection()
 	checkError(err)
 
@@ -38,7 +38,10 @@ func ByKey(key int) *Task {
 
 	err = stmt.QueryRow(key).Scan(&task.Id, &task.Value, &task.Status)
 	// TODO: check for empty row
-	return task
+
+	var tasks []*Task
+	tasks = append(tasks, task)
+	return tasks
 }
 
 func Insert(task *Task) (int, string) {
@@ -58,4 +61,24 @@ func Insert(task *Task) (int, string) {
 
 	task.Id, _ = res.LastInsertId()
 	return 1, fmt.Sprintf("Key is %d", task.Id)
+}
+
+func ByStatus(status int) []*Task {
+	conn, err := createconnection()
+	checkError(err)
+
+	sql := fmt.Sprintf("select id, value, status from task where status = %d", status)
+	rows, err := conn.Query(sql)
+	checkError(err)
+	defer rows.Close()
+
+	var tasks []*Task
+
+	for rows.Next() {
+		task := new(Task)
+		rows.Scan(&task.Id, &task.Value, &task.Status)
+		tasks = append(tasks, task)
+	}
+
+	return tasks
 }
