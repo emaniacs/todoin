@@ -102,3 +102,22 @@ func GetAll() []*Task {
 
 	return tasks
 }
+
+func Exist(key int) bool {
+	conn, err := createconnection()
+	checkError(err)
+
+	sql := "select id from task where id = ?"
+	stmt, err := conn.Prepare(sql)
+	checkError(err)
+	defer stmt.Close()
+
+	var id int
+	stmt.QueryRow(key).Scan(&id)
+
+	if id == key {
+		return true
+	}
+
+	return false
+}
