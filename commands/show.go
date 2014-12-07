@@ -19,6 +19,8 @@ func Show() (int, []string) {
 			tasks = db.ByStatus(arg)
 		} else if arg, ok := isNumeric(os.Args[2]); ok == true {
 			tasks = db.ByKey(arg)
+		} else {
+			fmt.Println("Uknown command", os.Args[2])
 		}
 		break
 	}
