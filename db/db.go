@@ -82,3 +82,23 @@ func ByStatus(status int) []*Task {
 
 	return tasks
 }
+
+func GetAll() []*Task {
+	conn, err := createconnection()
+	checkError(err)
+
+	sql := fmt.Sprintf("select id, value, status from task")
+	rows, err := conn.Query(sql)
+	checkError(err)
+	defer rows.Close()
+
+	var tasks []*Task
+
+	for rows.Next() {
+		task := new(Task)
+		rows.Scan(&task.Id, &task.Value, &task.Status)
+		tasks = append(tasks, task)
+	}
+
+	return tasks
+}
