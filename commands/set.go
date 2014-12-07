@@ -33,7 +33,7 @@ func Set() (int, string) {
 		return -1, "Not enough arguments"
 	}
 	key, err := isNumeric(os.Args[2])
-	if err == false {
+	if err != nil {
 		return -1, "Invalid key."
 	}
 
@@ -46,7 +46,7 @@ func Set() (int, string) {
 
 	err = db.Update(key, task)
 
-	if err != true {
+	if err != nil {
 		return 1, "Success"
 	}
 

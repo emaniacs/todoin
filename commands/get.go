@@ -15,9 +15,9 @@ func Get() (int, []string) {
 		length := len(os.Args)
 		if length == 2 {
 			tasks = db.GetAll()
-		} else if arg, ok := isDone(os.Args[2]); ok == true {
+		} else if arg, err := isDone(os.Args[2]); err == true {
 			tasks = db.ByStatus(arg)
-		} else if arg, ok := isNumeric(os.Args[2]); ok == true {
+		} else if arg, err := isNumeric(os.Args[2]); err == nil {
 			tasks = db.ByKey(arg)
 		} else {
 			fmt.Println("Uknown command \"" + os.Args[2] + "\"")
@@ -55,23 +55,19 @@ func Get() (int, []string) {
 	return 0, msg
 }
 
-func isNumeric(val string) (int, bool) {
-	arg, err := strconv.Atoi(val)
-	if err == nil {
-		return arg, true
-	}
-	return arg, false
+func isNumeric(val string) (int, error) {
+	return strconv.Atoi(val)
 }
 
 func isDone(val string) (int, bool) {
-	ret := false
+	err := false
 	arg := -1
 	if val == "ok" || val == "o" {
 		arg = 1
-		ret = true
+		err = true
 	} else if val == "ko" || val == "k" {
 		arg = 0
-		ret = true
+		err = true
 	}
-	return arg, ret
+	return arg, err
 }

@@ -67,7 +67,7 @@ func ByStatus(status int) []*Task {
 	conn, err := createconnection()
 	checkError(err)
 
-	sql := fmt.Sprintf("select id, value, status, assignby, assignto, duedate from task where status = %d", status)
+	sql := fmt.Sprintf("SELECT id, value, status, assignby, assignto, duedate FROM task WHERE status = %d", status)
 	rows, err := conn.Query(sql)
 	checkError(err)
 	defer rows.Close()
@@ -76,7 +76,7 @@ func ByStatus(status int) []*Task {
 
 	for rows.Next() {
 		task := new(Task)
-		rows.Scan(&task.Id, &task.Value, &task.Status)
+		rows.Scan(&task.Id, &task.Value, &task.Status, &task.AssignBy, &task.AssignTo, &task.DueDate)
 		tasks = append(tasks, task)
 	}
 
@@ -122,7 +122,7 @@ func Exist(key int) bool {
 	return false
 }
 
-func Update(key int, task *Task) bool {
+func Update(key int, task *Task) error {
 	conn, err := createconnection()
 	checkError(err)
 
@@ -133,9 +133,6 @@ func Update(key int, task *Task) bool {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(task.Value, task.Status, task.AssignBy, task.AssignTo, task.DueDate)
-	if err != nil {
-		return true
-	}
 
-	return false
+	return err
 }
