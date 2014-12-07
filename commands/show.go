@@ -27,13 +27,13 @@ func Show() (int, []string) {
 
 	for key := range tasks {
 		task := tasks[key]
-		status := ""
+		status := "not done"
 		if task.Status == 1 {
-			status = " [done]"
+			status = "done"
 		}
 
 		// TODO: format output
-		msg = append(msg, fmt.Sprintf("%s%s", task.Value, status))
+		msg = append(msg, fmt.Sprintf("(%d) \"%s\" [%s]", task.Id, task.Value, status))
 	}
 
 	return 0, msg
