@@ -27,13 +27,29 @@ func Show() (int, []string) {
 
 	for key := range tasks {
 		task := tasks[key]
-		status := "ko"
+		status := "!ko"
 		if task.Status == 1 {
-			status = "ok"
+			status = "!ok"
+		}
+
+		assignby := ""
+		if task.AssignBy != "" {
+			assignby = "@" + task.AssignBy
+		}
+
+		assignto := ""
+		if task.AssignTo != "" {
+			assignto = "$" + task.AssignTo
+		}
+
+		duedate := ""
+		if task.DueDate != "" {
+			duedate = "?" + task.DueDate
 		}
 
 		// TODO: format output
-		msg = append(msg, fmt.Sprintf("(%d) \"%s\" !%s", task.Id, task.Value, status))
+		msg = append(msg,
+			fmt.Sprintf("(%d) \"%s\" %s %s %s %s", task.Id, task.Value, status, assignby, assignto, duedate))
 	}
 
 	return 0, msg
