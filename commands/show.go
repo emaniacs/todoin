@@ -27,13 +27,13 @@ func Show() (int, []string) {
 
 	for key := range tasks {
 		task := tasks[key]
-		status := "not done"
+		status := "ko"
 		if task.Status == 1 {
-			status = "done"
+			status = "ok"
 		}
 
 		// TODO: format output
-		msg = append(msg, fmt.Sprintf("(%d) \"%s\" [%s]", task.Id, task.Value, status))
+		msg = append(msg, fmt.Sprintf("(%d) \"%s\" !%s", task.Id, task.Value, status))
 	}
 
 	return 0, msg
@@ -50,10 +50,10 @@ func isNumeric(val string) (int, bool) {
 func isDone(val string) (int, bool) {
 	ret := false
 	arg := -1
-	if val == "done" || val == "d" {
+	if val == "ok" || val == "o" {
 		arg = 1
 		ret = true
-	} else if val == "undone" || val == "u" {
+	} else if val == "ko" || val == "k" {
 		arg = 0
 		ret = true
 	}
