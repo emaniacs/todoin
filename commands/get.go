@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func Show() (int, []string) {
+func Get() (int, []string) {
 	msg := []string{}
 	var tasks []*db.Task
 
