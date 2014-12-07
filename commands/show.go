@@ -9,7 +9,7 @@ import (
 
 var Key int
 
-func init() {
+func parseShowArgs() {
 	Key = 1
 	if len(os.Args) < 3 {
 		Key = 0
@@ -18,6 +18,8 @@ func init() {
 
 func Show() (int, []string) {
 	msg := []string{}
+	parseShowArgs()
+
 	if Key < 1 {
 		msg = append(msg, "Not enough argument.")
 		return -1, msg

@@ -6,12 +6,9 @@ import (
 	"os"
 )
 
-var task *db.Task
-var err bool
-
-func init() {
-	task = new(db.Task)
-	err = false
+func parseAddArgs() (bool, *db.Task) {
+	task := new(db.Task)
+	err := false
 	if len(os.Args) == 4 {
 		task.Value = os.Args[2]
 		switch os.Args[3] {
@@ -22,16 +19,19 @@ func init() {
 		default:
 			task.Status = 0
 		}
-	} else if len(os.Args) == 2 {
+	} else if len(os.Args) == 3 {
 		task.Value = os.Args[2]
 		task.Status = 0
 	} else {
 		err = true
 	}
+
+	return err, task
 }
 
 // value status
 func Add() (int, string) {
+	err, task := parseAddArgs()
 	if err {
 		return -1, fmt.Sprintf("Not enough arguments")
 	}
