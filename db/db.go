@@ -121,3 +121,21 @@ func Exist(key int) bool {
 
 	return false
 }
+
+func Update(key int, task *Task) bool {
+	conn, err := createconnection()
+	checkError(err)
+
+	sql := fmt.Sprintf("UPDATE task SET value = ?, status = ?, assignby = ?, assignto = ?, duedate = ? WHERE id = %d", key)
+
+	stmt, err := conn.Prepare(sql)
+	checkError(err)
+	defer stmt.Close()
+
+	_, err = stmt.Exec(task.Value, task.Status, task.AssignBy, task.AssignTo, task.DueDate)
+	if err != nil {
+		return true
+	}
+
+	return false
+}
