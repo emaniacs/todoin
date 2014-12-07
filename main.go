@@ -14,16 +14,20 @@ func main() {
 	}
 
 	switch os.Args[1] {
-	case "show", "s":
+	case "get", "g":
 		var exit int
 		msg := []string{}
-		exit, msg = commands.Show()
+		exit, msg = commands.Get()
 		for key := range msg {
 			fmt.Println(msg[key])
 		}
 		os.Exit(exit)
 	case "add", "a":
 		exit, msg := commands.Add()
+		fmt.Println(msg)
+		os.Exit(exit)
+	case "set", "s":
+		exit, msg := commands.Set()
 		fmt.Println(msg)
 		os.Exit(exit)
 	default:
