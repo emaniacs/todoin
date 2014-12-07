@@ -7,30 +7,18 @@ import (
 	"strconv"
 )
 
-var Key int
-
-func parseShowArgs() {
-	Key = 1
-	if len(os.Args) < 3 {
-		Key = 0
-	}
-}
-
 func Show() (int, []string) {
 	msg := []string{}
-	parseShowArgs()
-
-	if Key < 1 {
-		msg = append(msg, "Not enough argument.")
-		return -1, msg
-	}
 	var tasks []*db.Task
 
 	for {
-		if isDone(os.Args[2]) {
-			tasks = db.ByStatus(Key)
-		} else if isNumeric(os.Args[2]) {
-			tasks = db.ByKey(Key)
+		length := len(os.Args)
+		if length == 2 {
+			tasks = db.GetAll()
+		} else if arg, ok := isDone(os.Args[2]); ok == true {
+			tasks = db.ByStatus(arg)
+		} else if arg, ok := isNumeric(os.Args[2]); ok == true {
+			tasks = db.ByKey(arg)
 		}
 		break
 	}
@@ -49,22 +37,23 @@ func Show() (int, []string) {
 	return 0, msg
 }
 
-func isNumeric(val string) bool {
-	key, err := strconv.Atoi(val)
-	Key = key
+func isNumeric(val string) (int, bool) {
+	arg, err := strconv.Atoi(val)
 	if err == nil {
-		return true
+		return arg, true
 	}
-	return false
+	return arg, false
 }
 
-func isDone(val string) bool {
+func isDone(val string) (int, bool) {
+	ret := false
+	arg := -1
 	if val == "done" || val == "d" {
-		Key = 1
-		return true
+		arg = 1
+		ret = true
 	} else if val == "undone" || val == "u" {
-		Key = 0
-		return true
+		arg = 0
+		ret = true
 	}
-	return false
+	return arg, ret
 }
