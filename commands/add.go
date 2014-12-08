@@ -3,8 +3,8 @@ package commands
 import (
 	"errors"
 	"github.com/emaniacs/todoin/db"
+	"github.com/emaniacs/todoin/utils"
 	"os"
-	"strings"
 )
 
 // TODO: set os.Args as arguments
@@ -35,11 +35,11 @@ func parseAddArgs() (error, *db.Task) {
 
 	if err != nil {
 		for _, arg := range os.Args[sliceStart:] {
-			if strings.HasPrefix(arg, "@") {
+			if utils.IsAssignBy(arg) {
 				task.AssignBy = arg[1:]
-			} else if strings.HasPrefix(arg, "$") {
+			} else if utils.IsAssignTo(arg) {
 				task.AssignTo = arg[1:]
-			} else if strings.HasPrefix(arg, "?") {
+			} else if utils.IsDueDate(arg) {
 				task.DueDate = arg[1:]
 			}
 		}

@@ -3,8 +3,8 @@ package commands
 import (
 	"fmt"
 	"github.com/emaniacs/todoin/db"
+	"github.com/emaniacs/todoin/utils"
 	"os"
-	"strconv"
 )
 
 func Get() (int, []string) {
@@ -15,9 +15,9 @@ func Get() (int, []string) {
 		length := len(os.Args)
 		if length == 2 {
 			tasks = db.GetAll()
-		} else if arg, err := isDone(os.Args[2]); err == true {
+		} else if arg, err := utils.IsDone(os.Args[2]); err == true {
 			tasks = db.ByStatus(arg)
-		} else if arg, err := isNumeric(os.Args[2]); err == nil {
+		} else if arg, err := utils.IsNumeric(os.Args[2]); err == nil {
 			tasks = db.ByKey(arg)
 		} else {
 			fmt.Println("Uknown command \"" + os.Args[2] + "\"")
@@ -53,21 +53,4 @@ func Get() (int, []string) {
 	}
 
 	return 0, msg
-}
-
-func isNumeric(val string) (int, error) {
-	return strconv.Atoi(val)
-}
-
-func isDone(val string) (int, bool) {
-	err := false
-	arg := -1
-	if val == "ok" || val == "o" {
-		arg = 1
-		err = true
-	} else if val == "ko" || val == "k" {
-		arg = 0
-		err = true
-	}
-	return arg, err
 }
