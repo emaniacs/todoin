@@ -1,16 +1,17 @@
 package commands
 
 import (
-	"fmt"
+	"errors"
 	"github.com/emaniacs/todoin/db"
 	"os"
 	"strings"
 )
 
 // TODO: set os.Args as arguments
-func parseAddArgs() (bool, *db.Task) {
+func parseAddArgs() (error, *db.Task) {
+	var err error
+	err = nil
 	task := new(db.Task)
-	err := false
 	sliceStart := 0
 
 	if len(os.Args) >= 4 {
@@ -29,16 +30,18 @@ func parseAddArgs() (bool, *db.Task) {
 		task.Value = os.Args[2]
 		task.Status = 0
 	} else {
-		err = true
+		err = errors.New("Not enough arguments")
 	}
 
-	for _, arg := range os.Args[sliceStart:] {
-		if strings.HasPrefix(arg, "@") {
-			task.AssignBy = arg[1:]
-		} else if strings.HasPrefix(arg, "$") {
-			task.AssignTo = arg[1:]
-		} else if strings.HasPrefix(arg, "?") {
-			task.DueDate = arg[1:]
+	if err != nil {
+		for _, arg := range os.Args[sliceStart:] {
+			if strings.HasPrefix(arg, "@") {
+				task.AssignBy = arg[1:]
+			} else if strings.HasPrefix(arg, "$") {
+				task.AssignTo = arg[1:]
+			} else if strings.HasPrefix(arg, "?") {
+				task.DueDate = arg[1:]
+			}
 		}
 	}
 
@@ -48,8 +51,8 @@ func parseAddArgs() (bool, *db.Task) {
 // value status
 func Add() (int, string) {
 	err, task := parseAddArgs()
-	if err {
-		return -1, fmt.Sprintf("Not enough arguments", task)
+	if err != nil {
+		return -1, err.Error()
 	}
 
 	key, msg := db.Insert(task)
