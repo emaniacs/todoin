@@ -136,3 +136,35 @@ func Update(key int, task *Task) error {
 
 	return err
 }
+
+func ByUser(user, assign string) []*Task {
+	conn, err := createconnection()
+	checkError(err)
+
+	var tasks []*Task
+	var where string
+	if assign == "@" {
+		where = "assignby = ?"
+	} else if assign == "$" {
+		where = "assignto = ?"
+	} else {
+		return tasks
+	}
+
+	sql := "select id, value, status, assignby, assignto, duedate from task WHERE " + where
+	stmt, err := conn.Prepare(sql)
+	checkError(err)
+	defer stmt.Close()
+
+	rows, err := stmt.Query(user)
+	checkError(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		task := new(Task)
+		rows.Scan(&task.Id, &task.Value, &task.Status, &task.AssignBy, &task.AssignTo, &task.DueDate)
+		tasks = append(tasks, task)
+	}
+
+	return tasks
+}

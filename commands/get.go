@@ -19,6 +19,10 @@ func Get() (int, []string) {
 			tasks = db.ByStatus(arg)
 		} else if arg, err := utils.IsNumeric(os.Args[2]); err == nil {
 			tasks = db.ByKey(arg)
+		} else if utils.IsAssignBy(os.Args[2]) {
+			tasks = db.ByUser(os.Args[2][1:], "@")
+		} else if utils.IsAssignTo(os.Args[2]) {
+			tasks = db.ByUser(os.Args[2][1:], "$")
 		} else {
 			fmt.Println("Uknown command \"" + os.Args[2] + "\"")
 		}
