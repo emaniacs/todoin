@@ -3,12 +3,17 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"github.com/emaniacs/todoin/utils"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 )
 
 func createconnection() (*sql.DB, error) {
-	return sql.Open("sqlite3", "tasks.db")
+	dbName := utils.Config.Database.Name
+	if dbName == "" {
+		dbName = "tasks.db"
+	}
+	return sql.Open("sqlite3", dbName)
 }
 
 func checkError(err error) error {
