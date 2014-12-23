@@ -8,15 +8,17 @@ import (
 )
 
 func init() {
-	Register("set", &Command{
+	Register("del", &Command{
 		Usage: func() string {
-			return "Usage of set"
+			return "Usage of del"
 		},
 		Run: func(args []string) int {
 			if len(args) < 1 {
-				fmt.Fprintf(os.Stderr, "Usage: %s key <options>\n", appName)
+				fmt.Fprintln(os.Stderr, "Not enough argument")
 				return 255
 			}
+
+			// TODO: remove by column
 			key, err := utils.IsNumeric(args[0])
 			if err != nil {
 				fmt.Fprintln(os.Stderr, "Invalid key")
@@ -26,19 +28,13 @@ func init() {
 				fmt.Fprintln(os.Stderr, "Task not found.")
 				return 255
 			}
-			argsFlag := parseFlag("get")
-			argsFlag.Flag.Parse(args[1:])
 
-			task := db.ByKey(key)[0]
-			db.SyncTask(task, argsFlag.Task)
-
-			if db.Update(key, task) != nil {
-				fmt.Fprintln(os.Stdout, "Fail")
-				return 255
+			if db.DeleteById(int64(key)) {
+				fmt.Fprintln(os.Stdout, "Success")
+				return 0
 			}
-
-			fmt.Fprintln(os.Stdout, "Success")
-			return 0
+			fmt.Fprintln(os.Stdout, "Fail")
+			return 255
 		},
 	})
 }

@@ -1,42 +1,37 @@
 package commands
 
 import (
+	"fmt"
 	"github.com/emaniacs/todoin/db"
-	"github.com/emaniacs/todoin/utils"
 	"os"
 )
 
-// TODO: set os.Args as arguments
-func parseAddArgs(task *db.Task) {
-	for _, arg := range os.Args[2:] {
-		if utils.IsAssignBy(arg) {
-			task.AssignBy = arg[1:]
-		} else if utils.IsAssignTo(arg) {
-			task.AssignTo = arg[1:]
-		} else if utils.IsDueDate(arg) {
-			task.DueDate = arg[1:]
-		} else if status, err := utils.IsDone(arg); err != false {
-			task.Status = status
-		} else if task.Value == "" {
-			task.Value = arg
-		}
-	}
-}
+func init() {
+	Register("add", &Command{
+		Usage: func() string {
+			return "Usage of add"
+		},
+		Run: func(args []string) int {
+			if len(args) < 1 {
+				fmt.Fprintf(os.Stderr, "Use %s add value <options>\n", appName)
+				return 255
+			}
 
-// value status
-func Add() (int, string) {
-	if len(os.Args) < 3 {
-		return -1, "Not enough arguments"
-	}
+			task := new(db.Task)
+			argsFlag := parseFlag("get")
+			argsFlag.Flag.Parse(args[1:])
 
-	task := new(db.Task)
-	parseAddArgs(task)
+			db.SyncTask(task, argsFlag.Task)
+			task.Value = args[0]
 
-	key, msg := db.Insert(task)
+			id := db.Insert(task)
+			if id > 0 {
+				fmt.Fprintf(os.Stdout, "Success (%d)\n", id)
+				return 0
+			}
 
-	if key >= 1 {
-		return 0, msg
-	}
-
-	return -1, msg
+			fmt.Fprintln(os.Stdout, "Fail")
+			return 255
+		},
+	})
 }

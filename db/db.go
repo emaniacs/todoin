@@ -36,7 +36,7 @@ func ByKey(key int) []*Task {
 	checkError(err)
 
 	task := new(Task)
-	sql := "select id, value, status, assignby, assignto, duedate from task WHERE id = ?"
+	sql := "SELECT id, value, status, assignby, assignto, duedate FROM task WHERE id = ?"
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
@@ -49,11 +49,11 @@ func ByKey(key int) []*Task {
 	return tasks
 }
 
-func Insert(task *Task) (int, string) {
+func Insert(task *Task) int64 {
 	conn, err := createconnection()
 	checkError(err)
 
-	sql := "insert into task (value, status, assignby, assignto, duedate) values (?, ?, ?, ?, ?)"
+	sql := "INSERT INTO task (value, status, assignby, assignto, duedate) VALUES (?, ?, ?, ?, ?)"
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
@@ -61,11 +61,11 @@ func Insert(task *Task) (int, string) {
 	// TODO: check duplicate
 	res, err := stmt.Exec(task.Value, task.Status, task.AssignBy, task.AssignTo, task.DueDate)
 	if err != nil {
-		return -1, "Failed while insert"
+		return -1
 	}
 
 	task.Id, _ = res.LastInsertId()
-	return 1, fmt.Sprintf("Key is %d", task.Id)
+	return task.Id
 }
 
 func ByStatus(status int) []*Task {
@@ -92,7 +92,7 @@ func GetAll() []*Task {
 	conn, err := createconnection()
 	checkError(err)
 
-	sql := fmt.Sprintf("select id, value, status, assignby, assignto, duedate  from task")
+	sql := fmt.Sprintf("SELECT id, value, status, assignby, assignto, duedate  FROM task")
 	rows, err := conn.Query(sql)
 	checkError(err)
 	defer rows.Close()
@@ -112,7 +112,7 @@ func Exist(key int) bool {
 	conn, err := createconnection()
 	checkError(err)
 
-	sql := "select id from task where id = ?"
+	sql := "SELECT id FROM task WHERE id = ?"
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
@@ -156,7 +156,7 @@ func ByUser(user, assign string) []*Task {
 		return tasks
 	}
 
-	sql := "select id, value, status, assignby, assignto, duedate from task WHERE " + where
+	sql := "SELECT id, value, status, assignby, assignto, duedate FROM task WHERE " + where
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
@@ -172,4 +172,73 @@ func ByUser(user, assign string) []*Task {
 	}
 
 	return tasks
+}
+
+func GetWhere(user, assign string) []*Task {
+	conn, err := createconnection()
+	checkError(err)
+
+	var tasks []*Task
+	var where string
+	if assign == "@" {
+		where = "assignby = ?"
+	} else if assign == "$" {
+		where = "assignto = ?"
+	} else {
+		return tasks
+	}
+
+	sql := "SELECT id, value, status, assignby, assignto, duedate FROM task WHERE " + where
+	stmt, err := conn.Prepare(sql)
+	checkError(err)
+	defer stmt.Close()
+
+	rows, err := stmt.Query(user)
+	checkError(err)
+	defer rows.Close()
+
+	for rows.Next() {
+		task := new(Task)
+		rows.Scan(&task.Id, &task.Value, &task.Status, &task.AssignBy, &task.AssignTo, &task.DueDate)
+		tasks = append(tasks, task)
+	}
+
+	return tasks
+}
+
+func GetWheres(where string) []*Task {
+	conn, err := createconnection()
+	checkError(err)
+
+	sql := fmt.Sprintf("SELECT id, value, status, assignby, assignto, duedate FROM task WHERE  %s", where)
+	rows, err := conn.Query(sql)
+	checkError(err)
+	defer rows.Close()
+
+	var tasks []*Task
+
+	for rows.Next() {
+		task := new(Task)
+		rows.Scan(&task.Id, &task.Value, &task.Status, &task.AssignBy, &task.AssignTo, &task.DueDate)
+		tasks = append(tasks, task)
+	}
+
+	return tasks
+}
+
+func DeleteById(key int64) bool {
+	conn, err := createconnection()
+	checkError(err)
+
+	sql := "DELETE FROM task WHERE id = ?"
+	stmt, err := conn.Prepare(sql)
+	checkError(err)
+	defer stmt.Close()
+
+	// TODO: check duplicate
+	_, err = stmt.Exec(key)
+	if err != nil {
+		return false
+	}
+	return true
 }

@@ -5,56 +5,62 @@ import (
 	"github.com/emaniacs/todoin/db"
 	"github.com/emaniacs/todoin/utils"
 	"os"
+	"strconv"
+	"strings"
 )
 
-func Get() (int, []string) {
-	msg := []string{}
-	var tasks []*db.Task
+func init() {
+	Register("get", &Command{
+		Usage: func() string {
+			return "Usage of get"
+		},
+		Run: func(args []string) int {
+			var tasks []*db.Task
+			argsFlag := parseFlag("get")
 
-	for {
-		length := len(os.Args)
-		if length == 2 {
-			tasks = db.GetAll()
-		} else if arg, err := utils.IsDone(os.Args[2]); err == true {
-			tasks = db.ByStatus(arg)
-		} else if arg, err := utils.IsNumeric(os.Args[2]); err == nil {
-			tasks = db.ByKey(arg)
-		} else if utils.IsAssignBy(os.Args[2]) {
-			tasks = db.ByUser(os.Args[2][1:], "@")
-		} else if utils.IsAssignTo(os.Args[2]) {
-			tasks = db.ByUser(os.Args[2][1:], "$")
-		} else {
-			fmt.Println("Uknown command \"" + os.Args[2] + "\"")
-		}
-		break
-	}
+			if len(args) == 0 {
+				tasks = db.GetAll()
+			} else if arg, err := utils.IsNumeric(args[0]); err == nil {
+				tasks = db.ByKey(arg)
+			} else {
+				argsFlag.Flag.Parse(args)
 
-	for key := range tasks {
-		task := tasks[key]
-		status := "!ko"
-		if task.Status == 1 {
-			status = "!ok"
-		}
+				var where []string
+				for k, v := range argsFlag.Task {
+					if *v == "" {
+						continue
+					}
+					if k == "value" {
+						where = append(where, fmt.Sprintf("value LIKE '%%%s%%'", *v))
+					} else {
+						where = append(where, fmt.Sprintf("%s = '%s'", k, *v))
+					}
+				}
 
-		assignby := ""
-		if task.AssignBy != "" {
-			assignby = "@" + task.AssignBy
-		}
+				if len(where) < 1 {
+					fmt.Fprintln(os.Stderr, "Invalid argument.")
+					return 255
+				}
 
-		assignto := ""
-		if task.AssignTo != "" {
-			assignto = "$" + task.AssignTo
-		}
+				tasks = db.GetWheres(strings.Join(where, " AND "))
+			}
 
-		duedate := ""
-		if task.DueDate != "" {
-			duedate = "?" + task.DueDate
-		}
+			if *argsFlag.Verbose {
+				fmt.Fprintln(os.Stdout, strings.Join(
+					[]string{"id", "value", "status", "assignby", "assignto", "duedate"},
+					*argsFlag.Separator,
+				))
+			}
 
-		// TODO: format output
-		msg = append(msg,
-			fmt.Sprintf("(%d) \"%s\" %s %s %s %s", task.Id, task.Value, status, assignby, assignto, duedate))
-	}
+			for key := range tasks {
+				task := tasks[key]
+				fmt.Fprintln(os.Stdout, strings.Join(
+					[]string{strconv.FormatInt(task.Id, 10), task.Value, strconv.Itoa(task.Status), task.AssignBy, task.AssignTo, task.DueDate},
+					*argsFlag.Separator,
+				))
+			}
 
-	return 0, msg
+			return 0
+		},
+	})
 }
