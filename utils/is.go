@@ -17,7 +17,7 @@ func IsDone(val string) (int, bool) {
 		val = val[1:]
 	}
 
-	if val == "ok" || val == "o" {
+	if val == "done" || val == "ok" || val == "o" {
 		status = 1
 		ok = true
 	} else if val == "ko" || val == "k" {
