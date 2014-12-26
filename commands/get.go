@@ -19,13 +19,13 @@ Usage:
 	%s get key
 	%s get <options>
 Options:
-	-assignby=assignby		Searching with query =
-	-assignto=assignto		Searching with query =
-	-status=status			Searching with query =
-	-value=value			Searching with query LIKE
-	-duedate=duedate		Searching with query =
-	-filename=filename		Searching with query =
-	-line=line				Searching with query =
+	-assignby=assignby		Searching based on assignby column with query =
+	-assignto=assignto		Searching based on assignto column with query =
+	-status=status			Searching based on status column with query =
+	-value=value			Searching based on value column with query LIKE
+	-duedate=duedate		Searching based on duedate column with query =
+	-filename=filename		Searching based on filename column with query =
+	-line=line			Searching based on line column with query =
 Example:
 	$ %s get 10 
 	$ %s get -value=check
