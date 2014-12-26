@@ -13,7 +13,7 @@ type Task struct {
 	AssignTo string // @>
 	DueDate  string // ?
 
-	FileName string
+	Filename string
 	Line     int
 }
 
