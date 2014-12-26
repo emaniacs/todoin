@@ -48,7 +48,7 @@ func addTask() {
 	for {
 		t := <-tchan
 		if *Insert {
-			fmt.Fprintf(os.Stdout, "[%s:%d \"%s\"] ", t.FileName, t.Line, t.Value)
+			fmt.Fprintf(os.Stdout, "[%s:%d \"%s\"] ", t.Filename, t.Line, t.Value)
 			insert := true
 			if *Ask {
 				var yes string
@@ -68,7 +68,7 @@ func addTask() {
 				fmt.Println(" -> No")
 			}
 		} else {
-			fmt.Printf("%s:%s \"%s\"\n", t.FileName, t.Line, t.Value)
+			fmt.Printf("%s:%s \"%s\"\n", t.Filename, t.Line, t.Value)
 		}
 		Wg.Done()
 	}
@@ -79,7 +79,7 @@ func generateTask(found []string, fn string, line int) *db.Task {
 
 	task := new(db.Task)
 	task.Value = value
-	task.FileName = fn
+	task.Filename = fn
 	task.Line = line
 	if len(found) > 2 {
 		for _, val := range strings.Split(found[2], " ") {
