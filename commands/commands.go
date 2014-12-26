@@ -73,6 +73,8 @@ func parseFlag(name string) *Args {
 	args.Task["status"] = args.Flag.String("status", "", "")
 	args.Task["value"] = args.Flag.String("value", "", "")
 	args.Task["duedate"] = args.Flag.String("duedate", "", "")
+	args.Task["filename"] = args.Flag.String("filename", "", "")
+	args.Task["line"] = args.Flag.String("line", "", "")
 
 	return args
 }
