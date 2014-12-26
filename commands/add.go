@@ -16,17 +16,17 @@ Options:
 	-assignby=assignby
 	-assignto=assignto
 	-status=status
-	-value=value
 	-duedate=duedate
 	-filename=filename
 	-line=line
 Example:
-	$ %s add -value="this is the value" -status=1 
+	$ %s add "this is the value"
+	$ %s add "this is the value" -status=1 
 			`, appName, appName)
 		},
 		Run: func(args []string) int {
 			if len(args) < 1 {
-				fmt.Fprintf(os.Stderr, "Use %s add value <options>\n", appName)
+				fmt.Fprintf(os.Stderr, "Usage: %s add value <options>\n", appName)
 				return 255
 			}
 
