@@ -10,7 +10,14 @@ import (
 func init() {
 	Register("del", &Command{
 		Usage: func() string {
-			return "Usage of del"
+			return fmt.Sprintf(`Remove task based on key
+Usage:
+	%s del <key>
+Example:
+	$ %s del 10 
+	# delete multiple task
+	$ %s del 10 11 12 13
+			`, appName, appName, appName)
 		},
 		Run: func(args []string) int {
 			if len(args) < 1 {
