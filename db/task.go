@@ -12,6 +12,9 @@ type Task struct {
 	AssignBy string // @<
 	AssignTo string // @>
 	DueDate  string // ?
+
+	FileName string
+	Line     int
 }
 
 func SyncTask(task *Task, tasks map[string]*string) {
