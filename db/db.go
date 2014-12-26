@@ -23,14 +23,6 @@ func checkError(err error) error {
 	return err
 }
 
-func init() {
-	conn, err := createconnection()
-	checkError(err)
-
-	_, err = conn.Exec("CREATE TABLE IF NOT EXISTS task(id INTEGER PRIMARY KEY, value TEXT, status INT, assignby STRING, assignto STRING, duedate STRING, filename STRING, line INTEGER)")
-	checkError(err)
-}
-
 func ByKey(key int) []*Task {
 	conn, err := createconnection()
 	checkError(err)
@@ -53,7 +45,7 @@ func Insert(t *Task) int64 {
 	conn, err := createconnection()
 	checkError(err)
 
-	sql := "INSERT INTO task (value, status, assignby, assignto, duedate, filename, line) VALUES (?, ?, ?, ?, ?)"
+	sql := "INSERT INTO task (value, status, assignby, assignto, duedate, filename, line) VALUES (?, ?, ?, ?, ?, ?, ?)"
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
