@@ -27,7 +27,7 @@ func init() {
 	conn, err := createconnection()
 	checkError(err)
 
-	_, err = conn.Exec("CREATE TABLE IF NOT EXISTS task(id INTEGER PRIMARY KEY, value TEXT, status INT, assignby STRING, assignto STRING, duedate STRING)")
+	_, err = conn.Exec("CREATE TABLE IF NOT EXISTS task(id INTEGER PRIMARY KEY, value TEXT, status INT, assignby STRING, assignto STRING, duedate STRING, filename STRING, line INTEGER)")
 	checkError(err)
 }
 
@@ -35,44 +35,44 @@ func ByKey(key int) []*Task {
 	conn, err := createconnection()
 	checkError(err)
 
-	task := new(Task)
-	sql := "SELECT id, value, status, assignby, assignto, duedate FROM task WHERE id = ?"
+	t := new(Task)
+	sql := "SELECT id, value, status, assignby, assignto, duedate, filename, line FROM task WHERE id = ?"
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
 
-	err = stmt.QueryRow(key).Scan(&task.Id, &task.Value, &task.Status, &task.AssignBy, &task.AssignTo, &task.DueDate)
+	err = stmt.QueryRow(key).Scan(&t.Id, &t.Value, &t.Status, &t.AssignBy, &t.AssignTo, &t.DueDate, &t.Filename, &t.Line)
 	// TODO: check for empty row
 
 	var tasks []*Task
-	tasks = append(tasks, task)
+	tasks = append(tasks, t)
 	return tasks
 }
 
-func Insert(task *Task) int64 {
+func Insert(t *Task) int64 {
 	conn, err := createconnection()
 	checkError(err)
 
-	sql := "INSERT INTO task (value, status, assignby, assignto, duedate) VALUES (?, ?, ?, ?, ?)"
+	sql := "INSERT INTO task (value, status, assignby, assignto, duedate, filename, line) VALUES (?, ?, ?, ?, ?)"
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
 
 	// TODO: check duplicate
-	res, err := stmt.Exec(task.Value, task.Status, task.AssignBy, task.AssignTo, task.DueDate)
+	res, err := stmt.Exec(t.Value, t.Status, t.AssignBy, t.AssignTo, t.DueDate, t.Filename, t.Line)
 	if err != nil {
 		return -1
 	}
 
-	task.Id, _ = res.LastInsertId()
-	return task.Id
+	t.Id, _ = res.LastInsertId()
+	return t.Id
 }
 
 func ByStatus(status int) []*Task {
 	conn, err := createconnection()
 	checkError(err)
 
-	sql := fmt.Sprintf("SELECT id, value, status, assignby, assignto, duedate FROM task WHERE status = %d", status)
+	sql := fmt.Sprintf("SELECT id, value, status, assignby, assignto, duedate, filename, line FROM task WHERE status = %d", status)
 	rows, err := conn.Query(sql)
 	checkError(err)
 	defer rows.Close()
@@ -80,9 +80,9 @@ func ByStatus(status int) []*Task {
 	var tasks []*Task
 
 	for rows.Next() {
-		task := new(Task)
-		rows.Scan(&task.Id, &task.Value, &task.Status, &task.AssignBy, &task.AssignTo, &task.DueDate)
-		tasks = append(tasks, task)
+		t := new(Task)
+		rows.Scan(&t.Id, &t.Value, &t.Status, &t.AssignBy, &t.AssignTo, &t.DueDate, &t.Filename, &t.Line)
+		tasks = append(tasks, t)
 	}
 
 	return tasks
@@ -92,7 +92,7 @@ func GetAll() []*Task {
 	conn, err := createconnection()
 	checkError(err)
 
-	sql := fmt.Sprintf("SELECT id, value, status, assignby, assignto, duedate  FROM task")
+	sql := fmt.Sprintf("SELECT id, value, status, assignby, assignto, duedate, filename, line  FROM task")
 	rows, err := conn.Query(sql)
 	checkError(err)
 	defer rows.Close()
@@ -100,9 +100,9 @@ func GetAll() []*Task {
 	var tasks []*Task
 
 	for rows.Next() {
-		task := new(Task)
-		rows.Scan(&task.Id, &task.Value, &task.Status, &task.AssignBy, &task.AssignTo, &task.DueDate)
-		tasks = append(tasks, task)
+		t := new(Task)
+		rows.Scan(&t.Id, &t.Value, &t.Status, &t.AssignBy, &t.AssignTo, &t.DueDate, &t.Filename, &t.Line)
+		tasks = append(tasks, t)
 	}
 
 	return tasks
@@ -127,17 +127,17 @@ func Exist(key int) bool {
 	return false
 }
 
-func Update(key int, task *Task) error {
+func Update(key int, t *Task) error {
 	conn, err := createconnection()
 	checkError(err)
 
-	sql := fmt.Sprintf("UPDATE task SET value = ?, status = ?, assignby = ?, assignto = ?, duedate = ? WHERE id = %d", key)
+	sql := fmt.Sprintf("UPDATE task SET value = ?, status = ?, assignby = ?, assignto = ?, duedate = ? , filename = ?, line = ? WHERE id = %d", key)
 
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
 
-	_, err = stmt.Exec(task.Value, task.Status, task.AssignBy, task.AssignTo, task.DueDate)
+	_, err = stmt.Exec(t.Value, t.Status, t.AssignBy, t.AssignTo, t.DueDate, t.Filename, t.Line)
 
 	return err
 }
@@ -156,7 +156,7 @@ func ByUser(user, assign string) []*Task {
 		return tasks
 	}
 
-	sql := "SELECT id, value, status, assignby, assignto, duedate FROM task WHERE " + where
+	sql := "SELECT id, value, status, assignby, assignto, duedate, filename, line FROM task WHERE " + where
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
@@ -166,9 +166,9 @@ func ByUser(user, assign string) []*Task {
 	defer rows.Close()
 
 	for rows.Next() {
-		task := new(Task)
-		rows.Scan(&task.Id, &task.Value, &task.Status, &task.AssignBy, &task.AssignTo, &task.DueDate)
-		tasks = append(tasks, task)
+		t := new(Task)
+		rows.Scan(&t.Id, &t.Value, &t.Status, &t.AssignBy, &t.AssignTo, &t.DueDate, &t.Filename, &t.Line)
+		tasks = append(tasks, t)
 	}
 
 	return tasks
@@ -188,7 +188,7 @@ func GetWhere(user, assign string) []*Task {
 		return tasks
 	}
 
-	sql := "SELECT id, value, status, assignby, assignto, duedate FROM task WHERE " + where
+	sql := "SELECT id, value, status, assignby, assignto, duedate, filename, line FROM task WHERE " + where
 	stmt, err := conn.Prepare(sql)
 	checkError(err)
 	defer stmt.Close()
@@ -198,9 +198,9 @@ func GetWhere(user, assign string) []*Task {
 	defer rows.Close()
 
 	for rows.Next() {
-		task := new(Task)
-		rows.Scan(&task.Id, &task.Value, &task.Status, &task.AssignBy, &task.AssignTo, &task.DueDate)
-		tasks = append(tasks, task)
+		t := new(Task)
+		rows.Scan(&t.Id, &t.Value, &t.Status, &t.AssignBy, &t.AssignTo, &t.DueDate, &t.Filename, &t.Line)
+		tasks = append(tasks, t)
 	}
 
 	return tasks
@@ -210,7 +210,7 @@ func GetWheres(where string) []*Task {
 	conn, err := createconnection()
 	checkError(err)
 
-	sql := fmt.Sprintf("SELECT id, value, status, assignby, assignto, duedate FROM task WHERE  %s", where)
+	sql := fmt.Sprintf("SELECT id, value, status, assignby, assignto, duedate, filename, line FROM task WHERE  %s", where)
 	rows, err := conn.Query(sql)
 	checkError(err)
 	defer rows.Close()
@@ -218,9 +218,9 @@ func GetWheres(where string) []*Task {
 	var tasks []*Task
 
 	for rows.Next() {
-		task := new(Task)
-		rows.Scan(&task.Id, &task.Value, &task.Status, &task.AssignBy, &task.AssignTo, &task.DueDate)
-		tasks = append(tasks, task)
+		t := new(Task)
+		rows.Scan(&t.Id, &t.Value, &t.Status, &t.AssignBy, &t.AssignTo, &t.DueDate, &t.Filename, &t.Line)
+		tasks = append(tasks, t)
 	}
 
 	return tasks
