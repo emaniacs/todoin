@@ -120,7 +120,7 @@ Options:
 Example:
 	$ %s -path=/tmp -ext=*.go 
 	$ %s -path=/tmp,/home -ext=*.go,*.php -ask
-			`, appName, appName)
+			`, appName, appName, appName)
 		},
 		Run: func(args []string) int {
 			flg := flag.NewFlagSet("get", flag.ContinueOnError)
