@@ -17,7 +17,7 @@ var regexString = ".*TODO: +([^@$?!]*)([@$?].*[^ ])?"
 var Ask, Insert *bool
 var fchan = make(chan string)
 var tchan = make(chan *db.Task)
-var Prefix []string
+var Exts []string
 var Wg sync.WaitGroup
 
 func parseFile() {
@@ -98,7 +98,7 @@ func generateTask(found []string, fn string, line int) *db.Task {
 }
 
 func prefixMatch(file string) bool {
-	for _, val := range Prefix {
+	for _, val := range Exts {
 		if strings.HasSuffix(file, val) {
 			return true
 		}
@@ -109,24 +109,35 @@ func prefixMatch(file string) bool {
 func init() {
 	Register("gen", &Command{
 		Usage: func() string {
-			return "Usage of gen"
+			return fmt.Sprintf(`Generate task based on TODO text in a file
+Usage:
+	%s gen <options>
+Options:
+	-path=dir	Path of file (required)
+	-ext=ext	Extension file (required)
+	-insert		Force insert (default is true)
+	-ask		Ask before insert (default is false)
+Example:
+	$ %s -path=/tmp -ext=*.go 
+	$ %s -path=/tmp,/home -ext=*.go,*.php -ask
+			`, appName, appName)
 		},
 		Run: func(args []string) int {
 			flg := flag.NewFlagSet("get", flag.ContinueOnError)
 			flg.Init("gen", flag.ContinueOnError)
 			paths := flg.String("path", "", "")
-			files := flg.String("file", "", "")
+			exts := flg.String("ext", "", "")
 			Insert = flg.Bool("insert", true, "")
 			Ask = flg.Bool("ask", false, "")
 			flg.Parse(args)
 
-			if len(*paths) < 1 || len(*files) < 1 {
+			if len(*paths) < 1 || len(*exts) < 1 {
 				fmt.Fprintln(os.Stderr, "Not enough argument")
 				return 255
 			}
 
-			for _, pre := range strings.Split(*files, ",") {
-				Prefix = append(Prefix, strings.Replace(pre, "*", "", -1))
+			for _, pre := range strings.Split(*exts, ",") {
+				Exts = append(Exts, strings.Replace(pre, "*", "", -1))
 			}
 
 			go addTask()
@@ -144,8 +155,6 @@ func init() {
 				}()
 			}
 			Wg.Wait()
-
-			// parseDir(*paths, *files, f)
 
 			return 255
 		},
