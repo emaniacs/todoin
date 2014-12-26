@@ -12,6 +12,25 @@ import (
 func init() {
 	Register("get", &Command{
 		Usage: func() string {
+			return fmt.Sprintf(`Get task
+Multiple options will using AND expression
+Usage:
+	%s get
+	%s get key
+	%s get <options>
+Options:
+	-assignby=assignby		Searching with query =
+	-assignto=assignto		Searching with query =
+	-status=status			Searching with query =
+	-value=value			Searching with query LIKE
+	-duedate=duedate		Searching with query =
+	-filename=filename		Searching with query =
+	-line=line				Searching with query =
+Example:
+	$ %s get 10 
+	$ %s get -value=check
+	$ %s get -assignto=me -status=0
+			`, appName, appName, appName, appName, appName, appName)
 			return "Usage of get"
 		},
 		Run: func(args []string) int {
