@@ -9,7 +9,7 @@ func init() {
 	// register for help
 	Register("help", &Command{
 		Usage: func() string {
-			return "This is help"
+			return fmt.Sprintf("Usage: %s help <command>", appName)
 		},
 		Run: func(args []string) int {
 			if len(args) > 0 {
@@ -20,7 +20,7 @@ func init() {
 				}
 				return 255
 			}
-			fmt.Fprintf(os.Stderr, "this help not helping yet.\n")
+			fmt.Fprintf(os.Stdout, "Usage: %s help <command>.\n", appName)
 			return 0
 		},
 	})
