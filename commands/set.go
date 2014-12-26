@@ -10,7 +10,20 @@ import (
 func init() {
 	Register("set", &Command{
 		Usage: func() string {
-			return "Usage of set"
+			return fmt.Sprintf(`Update a column on task.
+Usage:
+	%s set <key> <options>
+Options:
+	-assignby=assignby
+	-assignto=assignto
+	-status=status
+	-value=value
+	-duedate=duedate
+	-filename=filename
+	-line=line
+Example:
+	$ %s set 10 -value="this is the value" -status=1 
+			`, appName, appName)
 		},
 		Run: func(args []string) int {
 			if len(args) < 1 {
