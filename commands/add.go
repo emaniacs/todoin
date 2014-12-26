@@ -9,7 +9,20 @@ import (
 func init() {
 	Register("add", &Command{
 		Usage: func() string {
-			return "Usage of add"
+			return fmt.Sprintf(`Add new task.
+Usage:
+	%s add <options>
+Options:
+	-assignby=assignby
+	-assignto=assignto
+	-status=status
+	-value=value
+	-duedate=duedate
+	-filename=filename
+	-line=line
+Example:
+	$ %s add -value="this is the value" -status=1 
+			`, appName, appName)
 		},
 		Run: func(args []string) int {
 			if len(args) < 1 {
